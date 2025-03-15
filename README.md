@@ -3,5 +3,5 @@ This repo contains code I am using to experiment with RL and creating an agent t
 
 ## Helpful Repos
 Many thanks to the following repos for research and code. 
-- [https://github.com/zladx/LADX-Disassembly|zladx/LADX Disassembly]
-- [https://github.com/Baekalfen/PyBoy/tree/master|Baekalfen/PyBoy]
+- [zladx/LADX Disassembly](https://github.com/zladx/LADX-Disassembly)
+- [Baekalfen/PyBoy](https://github.com/Baekalfen/PyBoy/tree/master)
