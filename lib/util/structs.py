@@ -124,7 +124,7 @@ class RoomWarp:
   room:int
   X:int
   Y:int
-  titleIdx:int
+  tileIdx:int
 
 @dataclass
 class DungeonItems:
@@ -139,6 +139,9 @@ class RupeeCount:
     self.hi = hi
     self.lo = lo
     self.count = hi*256+lo
+  
+  def __str__(self):
+    return str(self.count)
   
 @dataclass
 class WreckingBallStatus:

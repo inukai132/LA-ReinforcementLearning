@@ -123,10 +123,10 @@ class LinksAwakeningWrapper():
     return link, other
 
   def getEntities(self):
-    [
+    return [
       Entity(
-        x=self.pyboy.memory[0xc200+i] * -1 if self.pyboy.memory[0x220+i] else 1,
-        y=self.pyboy.memory[0xc210+i] * -1 if self.pyboy.memory[0x230+i] else 1,
+        x=self.pyboy.memory[0xc200+i] * (-1 if self.pyboy.memory[0x220+i] == 255 else 1),
+        y=self.pyboy.memory[0xc210+i] * (-1 if self.pyboy.memory[0x230+i] == 255 else 1),
         z=self.pyboy.memory[0xc310+i],
         xVel=self.pyboy.memory[0xc240+i],
         yVel=self.pyboy.memory[0xc250+i],
@@ -346,7 +346,7 @@ class LinksAwakeningWrapper():
     return self.pyboy.memory[0xdb5c]
   
   def getRupees(self):
-    return RupeeCount(self.pyboy.memory[0xdb5d],self.pyboy.memory[0xdb5e])
+    return RupeeCount(self.pyboy.memory[0xdb5e],self.pyboy.memory[0xdb5d])
   
   def getBossFlags(self):
     return self.pyboy.memory[0xdb65:0xdb6c]
@@ -410,53 +410,53 @@ class LinksAwakeningWrapper():
 
   def getCurrentStairs(self):
     return Stairs(
-      state=self.pyboy.memory[0xffab],
-      x=self.pyboy.memory[0xffac],
-      y=self.pyboy.memory[0xffad],
+      state=self.pyboy.memory[0xffac],
+      x=self.pyboy.memory[0xffad],
+      y=self.pyboy.memory[0xffae],
     )
   
   def printAllStats(self):
     from pprint import pprint
     # self.drawStats()
-    flags = {k:v for k,v in self.getFlags().items() if v}
-    pprint(f"Set Flags: ")
-    pprint(flags)
-    pprint(f"Cur Stairs: ")
-    pprint(self.getCurrentStairs())
-    pprint(f"Link State: ")
-    pprint(self.getLinkStats())
-    pprint(f"OAM Buffer: ")
-    pprint(self.getOAMBuffer())
+    # flags = {k:v for k,v in self.getFlags().items() if v}
+    # pprint(f"Set Flags: ")
+    # pprint(flags)
+    # pprint(f"Cur Stairs: ")
+    # pprint(self.getCurrentStairs())
+    # pprint(f"Link State: ")
+    # pprint(self.getLinkStats())
+    # pprint(f"OAM Buffer: ")
+    # pprint(self.getOAMBuffer())
     pprint(f"Entities: ")
-    pprint(self.getEntities())
-    pprint(f"Cur Hearts: ")
-    pprint(self.getCurHearts())
-    pprint(f"Max Hearts: ")
-    pprint(self.getMaxHearts())
-    pprint(f"Room Objects: ")
-    pprint(self.getRoomObjects())
-    pprint(f"Room Warps: ")
-    pprint(self.getRoomWarps())
-    pprint(f"Current Equipment: ")
-    pprint(self.getCurrentEquip())
-    pprint(f"Inventory: ")
-    pprint(self.getInventory())
-    pprint(f"Recent Rooms: ")
-    pprint(self.getRecentRooms())
-    pprint(f"Minimap: ")
-    pprint(self.getDungeonMinimap())
-    pprint(f"Dungeon Items: ")
-    pprint(self.getDungeonItems())
-    pprint(f"Position History: ")
-    pprint(self.getPositionHistory())
-    pprint(f"Overworld: ")
-    pprint(self.getOverworldRoomStatus())
-    pprint(f"IndoorA: ")
-    pprint(self.getIndoorARoomStatus())
-    pprint(f"IndoorB: ")
-    pprint(self.getIndoorBRoomStatus())
-    pprint(f"Kill Count: ")
-    pprint(self.getKillCount())
-    pprint(f"Kill Order: ")
-    pprint(self.getKillOrder())
+    pprint([ e for e in self.getEntities() if e.status])
+    # pprint(f"Cur Hearts: ")
+    # pprint(self.getCurHearts())
+    # pprint(f"Max Hearts: ")
+    # pprint(self.getMaxHearts())
+    # pprint(f"Room Objects: ")
+    # pprint(self.getRoomObjects())
+    # pprint(f"Room Warps: ")
+    # pprint(self.getRoomWarps())
+    # pprint(f"Current Equipment: ")
+    # pprint(self.getCurrentEquip())
+    # pprint(f"Inventory: ")
+    # pprint(self.getInventory())
+    # pprint(f"Recent Rooms: ")
+    # pprint(self.getRecentRooms())
+    # pprint(f"Minimap: ")
+    # pprint(self.getDungeonMinimap())
+    # pprint(f"Dungeon Items: ")
+    # pprint(self.getDungeonItems())
+    # pprint(f"Position History: ")
+    # pprint(self.getPositionHistory())
+    # pprint(f"Overworld: ")
+    # pprint(self.getOverworldRoomStatus())
+    # pprint(f"IndoorA: ")
+    # pprint(self.getIndoorARoomStatus())
+    # pprint(f"IndoorB: ")
+    # pprint(self.getIndoorBRoomStatus())
+    # pprint(f"Kill Count: ")
+    # pprint(self.getKillCount())
+    # pprint(f"Kill Order: ")
+    # pprint(self.getKillOrder())
 
