@@ -138,7 +138,7 @@ class RupeeCount:
   def __init__(self, lo, hi):
     self.hi = hi
     self.lo = lo
-    self.count = hi*256+lo
+    self.count = hi*100+lo
   
   def __str__(self):
     return str(self.count)
@@ -164,15 +164,43 @@ class LinkStatus:
   blocked:int
   slowed:int
   timer:int
-  mapRoom:int
-  mapID:int
+  mapRoom:int #index within the map
+  mapID:int #Has to be mapped to interior_a or interior_b
   roomStatus:int
   sideScrolling:int
   roomPos:int
   finalRoomPos:int
+  overworldRoomID:int
 
 @dataclass
 class Stairs:
   x: int
   y: int
   state: int
+
+@dataclass
+class Inventory:
+  sword:int
+  shield:int
+  powder:int
+  roc:int
+  bombs:int
+  boots:int
+  brace:int
+  bow:int
+  shovel:int
+  hookshot:int
+  ocarina:int
+  boomerang:int
+  magicRod:int
+  flippers:int
+  medicine:int
+  heartPieces:int
+  tradeItem:int
+  seashells:int
+  tailKey:int
+  slimeKeyOrLeaves:int
+  anglerKey:int
+  faceKey:int
+  birdKey:int
+

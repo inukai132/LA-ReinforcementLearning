@@ -3,6 +3,7 @@ from pyboy import PyBoy
 from typing import cast
 from pprint import pprint as print
 from lib.util.structs import *
+from lib.util.enums import *
 
 class LinksAwakeningWrapper():
   cartridge_title = "ZELDA"
@@ -122,6 +123,11 @@ class LinksAwakeningWrapper():
     ]
     return link, other
 
+  def decodeNumbers(self, n):
+    # Numbers are stored as a weird hex encoded value
+    # EG 0x11==0d17 will be stored as 0d23==0x17 
+    return int(hex(n)[2:],10)
+
   def getEntities(self):
     return [
       Entity(
@@ -171,18 +177,55 @@ class LinksAwakeningWrapper():
     return self.pyboy.memory[0xdb5a]
     
   def getMaxHearts(self):
-    return self.pyboy.memory[0xdb5b]
+    return self.decodeNumbers(self.pyboy.memory[0xdb5b])
   
   def getRoomObjects(self):
     # Probably needs to be parsed into actual objects
-    return self.pyboy.memory[0xd700:0xd800]
+    return [
+      self.pyboy.memory[0xd700+i*16:0xd710+i*16] for i in range(16)
+    ]
   
   def getCurrentEquip(self):
     #A,B
     return self.pyboy.memory[0xdb01],self.pyboy.memory[0xdb00]
   
-  def getInventory(self):
+  def getUnequip(self):
     return self.pyboy.memory[0xdb02:0xdb0b]
+  
+  def getInventoryRaw(self):
+    return self.pyboy.memory[0xdb00:0xdb0b]
+
+  def getInventory(self):
+    rawItems = self.getInventoryRaw()
+    flags = self.getFlags()
+    return Inventory(
+      sword=self.getSwordLevel()*int(INVENTORY.INVENTORY_SWORD.value in rawItems),
+      shield=self.getShieldLevel()*int(INVENTORY.INVENTORY_SHIELD.value in rawItems),
+      powder=self.getPowderCount()*int(INVENTORY.INVENTORY_MAGIC_POWDER.value in rawItems),
+      bombs=self.getBombCount()*int(INVENTORY.INVENTORY_BOMBS.value in rawItems),
+      brace=self.getBraceletLevel()*int(INVENTORY.INVENTORY_POWER_BRACELET.value in rawItems),
+      bow=self.getArrowCount()*int(INVENTORY.INVENTORY_BOW.value in rawItems),
+
+      roc=int(INVENTORY.INVENTORY_ROCS_FEATHER.value in rawItems),
+      boots=int(INVENTORY.INVENTORY_PEGASUS_BOOTS.value in rawItems),
+      shovel=int(INVENTORY.INVENTORY_SHOVEL.value in rawItems),
+      hookshot=int(INVENTORY.INVENTORY_HOOKSHOT.value in rawItems),
+      ocarina=int(INVENTORY.INVENTORY_OCARINA.value in rawItems),
+      boomerang=int(INVENTORY.INVENTORY_BOOMERANG.value in rawItems),
+      magicRod=int(INVENTORY.INVENTORY_MAGIC_ROD.value in rawItems),
+
+      heartPieces=self.getHeartPieces(),
+      tradeItem=self.getTradeItem(),
+      seashells=self.getSeashells(),
+
+      flippers=flags.hasFlippers,
+      medicine=flags.hasMedicine,
+      tailKey=flags.hasTailKey,
+      slimeKeyOrLeaves=flags.hasSlimeKey,
+      anglerKey=flags.hasFishKey,
+      faceKey=flags.hasFaceKey,
+      birdKey=flags.hasBirdKey
+    )
 
   def getRecentRooms(self):
     return self.pyboy.memory[0xce81:0xce87]
@@ -264,6 +307,9 @@ class LinksAwakeningWrapper():
       tileGlint=self.pyboy.memory[0xffb9],
     )
   
+  def getInvCursorPos(self):
+    return self.pyboy.memory[0xdba3]
+
   def getRoomWarps(self):
     return [
       RoomWarp(
@@ -298,7 +344,7 @@ class LinksAwakeningWrapper():
     ]
 
   def getKillCount(self):
-    return self.pyboy.memory[0xd415]
+    return self.decodeNumbers(self.pyboy.memory[0xd415])
 
   def getDungeonItems(self):
     return [
@@ -313,43 +359,43 @@ class LinksAwakeningWrapper():
     ]
   
   def getShieldLevel(self):
-    return self.pyboy.memory[0xc15a]
+    return self.decodeNumbers(self.pyboy.memory[0xc15a])
 
   def getTradeItem(self):
-    return self.pyboy.memory[0xdb0e]
+    return self.decodeNumbers(self.pyboy.memory[0xdb0e])
   
   def getSeashells(self):
-    return self.pyboy.memory[0xdb0f]
+    return self.decodeNumbers(self.pyboy.memory[0xdb0f])
   
   def getBraceletLevel(self):
-    return self.pyboy.memory[0xdb43]
+    return self.decodeNumbers(self.pyboy.memory[0xdb43])
   
   def getShieldLevel(self):
-    return self.pyboy.memory[0xdb44]
+    return self.decodeNumbers(self.pyboy.memory[0xdb44])
   
   def getArrowCount(self):
-    return self.pyboy.memory[0xdb45]
+    return self.decodeNumbers(self.pyboy.memory[0xdb45])
   
   def getCurSong(self):
-    return self.pyboy.memory[0xdb4a]
+    return self.decodeNumbers(self.pyboy.memory[0xdb4a])
   
   def getPowderCount(self):
-    return self.pyboy.memory[0xdb4c]
+    return self.decodeNumbers(self.pyboy.memory[0xdb4c])
   
   def getBombCount(self):
-    return self.pyboy.memory[0xdb4d]
+    return self.decodeNumbers(self.pyboy.memory[0xdb4d])
   
   def getSwordLevel(self):
-    return self.pyboy.memory[0xdb4e]
+    return self.decodeNumbers(self.pyboy.memory[0xdb4e])
   
   def getHeartPieces(self):
-    return self.pyboy.memory[0xdb5c]
+    return self.decodeNumbers(self.pyboy.memory[0xdb5c])
   
   def getRupees(self):
-    return RupeeCount(self.pyboy.memory[0xdb5e],self.pyboy.memory[0xdb5d])
+    return RupeeCount(self.decodeNumbers(self.pyboy.memory[0xdb5e]),self.decodeNumbers(self.pyboy.memory[0xdb5d]))
   
   def getBossFlags(self):
-    return self.pyboy.memory[0xdb65:0xdb6c]
+    return self.pyboy.memory[0xdb65:0xdb6d]
   
   def getWreckingBallStatus(self):
     return WreckingBallStatus(
@@ -360,13 +406,13 @@ class LinksAwakeningWrapper():
     )
 
   def getMaxPowder(self):
-    return self.pyboy.memory[0xdb76]
+    return self.decodeNumbers(self.pyboy.memory[0xdb76])
 
   def getMaxBombs(self):
-    return self.pyboy.memory[0xdb77]
+    return self.decodeNumbers(self.pyboy.memory[0xdb77])
 
   def getMaxArrows(self):
-    return self.pyboy.memory[0xdb78]
+    return self.decodeNumbers(self.pyboy.memory[0xdb78])
   
   def getCurrentBank(self):
     return self.pyboy.memory[0xdbaf]
@@ -385,6 +431,18 @@ class LinksAwakeningWrapper():
         bossKey=self.pyboy.memory[0xdbcf],
         smallKeys=self.pyboy.memory[0xdbd0],
     )
+  
+  def getBossStatus(self):
+    return [
+      self.pyboy.memory[0xd900+0x06] & 0x20,
+      self.pyboy.memory[0xd900+0x2b] & 0x20,
+      self.pyboy.memory[0xd900+0x5a] & 0x20,
+      self.pyboy.memory[0xd900+0xff] & 0x20,
+      self.pyboy.memory[0xd900+0x85] & 0x20,
+      self.pyboy.memory[0xd900+0xbc] & 0x20,
+      self.pyboy.memory[0xda00+0xe8] & 0x20,
+      self.pyboy.memory[0xda00+0x34] & 0x20,
+    ]
   
   def getLinkStats(self):
     return LinkStatus(
@@ -406,6 +464,7 @@ class LinksAwakeningWrapper():
       sideScrolling=self.pyboy.memory[0xfff9],
       roomPos=self.pyboy.memory[0xfffa],
       finalRoomPos=self.pyboy.memory[0xfffb],
+      overworldRoomID=self.pyboy.memory[0xdb54]
     )
 
   def getCurrentStairs(self):
