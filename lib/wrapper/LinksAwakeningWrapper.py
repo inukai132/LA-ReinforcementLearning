@@ -8,11 +8,16 @@ from lib.util.enums import *
 class LinksAwakeningWrapper():
   cartridge_title = "ZELDA"
   def __init__(self, pyboy:PyBoy):
+    from lib.gui.stateWindow import Window
     self.base = cast(PyBoyGameWrapper, pyboy.game_wrapper)
     self.pyboy = pyboy
     self.base._set_dimensions(0, 0, 21, 19, False)
     self.base.game_area_mapping(self.base.mapping_one_to_one, 0)
+    self.ui:Window = None
   
+  def link_ui(self, ui):
+    self.ui = ui
+
   def name_input(self, name="Link", render=False):
     # Assume cursor is at 'A'
     # Name entry is like:
@@ -344,7 +349,7 @@ class LinksAwakeningWrapper():
     ]
 
   def getKillCount(self):
-    return self.decodeNumbers(self.pyboy.memory[0xd415])
+    return self.pyboy.memory[0xd415]
 
   def getDungeonItems(self):
     return [

@@ -11,16 +11,15 @@ class DungeonTracker(BaseWidget):
     self.canvas = canvas
     self.zelda = zelda
     self.canvas.create_text(x, y, text="Dungeons:", anchor=tk.NW)
-    y+=16
     self.dungeons: list[DungeonItem] = [
-      TailCave    (canvas, zelda, x+width*0, y+height*0, width, height),
-      BottleGrotto(canvas, zelda, x+width*1, y+height*0, width, height),
-      KeyCavern   (canvas, zelda, x+width*2, y+height*0, width, height),
-      AnglersPond (canvas, zelda, x+width*3, y+height*0, width, height),
-      CatfishMaw  (canvas, zelda, x+width*0, y+height*1, width, height),
-      FaceShrine  (canvas, zelda, x+width*1, y+height*1, width, height),
-      EaglesTower (canvas, zelda, x+width*2, y+height*1, width, height),
-      TurtleRock  (canvas, zelda, x+width*3, y+height*1, width, height),
+      TailCave    (self.canvas, self.zelda, self.x+width*0, self.y+16+height*0, width, height),
+      BottleGrotto(self.canvas, self.zelda, self.x+width*1, self.y+16+height*0, width, height),
+      KeyCavern   (self.canvas, self.zelda, self.x+width*2, self.y+16+height*0, width, height),
+      AnglersPond (self.canvas, self.zelda, self.x+width*3, self.y+16+height*0, width, height),
+      CatfishMaw  (self.canvas, self.zelda, self.x+width*0, self.y+16+height*1, width, height),
+      FaceShrine  (self.canvas, self.zelda, self.x+width*1, self.y+16+height*1, width, height),
+      EaglesTower (self.canvas, self.zelda, self.x+width*2, self.y+16+height*1, width, height),
+      TurtleRock  (self.canvas, self.zelda, self.x+width*3, self.y+16+height*1, width, height),
     ]
 
   def reset(self):
