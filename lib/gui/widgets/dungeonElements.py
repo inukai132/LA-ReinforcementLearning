@@ -1,41 +1,42 @@
 from lib.gui.widgets.labelBox import LabelBox
 from lib.wrapper.LinksAwakeningWrapper import LinksAwakeningWrapper
-from lib.util.enums import INVENTORY
+from lib.util.utils import getDungeonItems, getOpenDungeons
+from lib.gui.widgets.mycanvas import MyCanvas
 import tkinter as tk
 
 class DungeonItem:
   name  = "UNK"
-  level = -1
+  level = 0
   found_smalls = -1
 
 
-  def __init__(self, canvas:tk.Canvas, zelda: LinksAwakeningWrapper, x, y, width, height):
+  def __init__(self, canvas:MyCanvas, zelda: LinksAwakeningWrapper, x, y, width, height):
     self.canvas = canvas
     self.zelda = zelda
-    self.background = canvas.create_rectangle(x, y, x+width, y+height, fill="#DDDDDD")
     self.x = x
-    self.width = width
     self.y = y
+    self.width = width
     self.height = height
+    self.background = self.canvas.create_rectangle(self.x, self.y, self.x+self.width, self.y+self.height, fill="#DDDDDD")
     yOff = 5
     xOff = 5
-    self.levelText = self.canvas.create_text(x+xOff, y+yOff, text=f"Level {self.level} - {self.name}", anchor=tk.NW)
+    self.levelText = self.canvas.draw_text(self.x+xOff, self.y+yOff, f"Level {self.level} - {self.name}")
     yOff += 15
-    self.keysText  = self.canvas.create_text(x+xOff, y+yOff, text=f"Small Keys: {self.found_smalls}", anchor=tk.NW)
+    self.keysText  = self.canvas.draw_text(self.x+xOff, self.y+yOff, f"Small Keys: {self.found_smalls}")
     yOff += 15
 
     boxWidth = width-10
 
     self.dungeonMarkers = {
-      "complete": LabelBox(self.canvas, x+xOff,               y+yOff,    boxWidth,    15, "Complete",     "pink"),
-      "miniboss": LabelBox(self.canvas, x+xOff,               y+yOff+15, boxWidth//2, 15, "Mini-Boss",    "pink"),
-      "boss":     LabelBox(self.canvas, x+xOff+boxWidth-boxWidth//2,   y+yOff+15, boxWidth//2, 15, "Nightmare",    "pink"),
-      "item":     LabelBox(self.canvas, x+xOff,               y+yOff+30, boxWidth//2, 15, "Item", "pink"),
-      "bigKey":   LabelBox(self.canvas, x+xOff+boxWidth-boxWidth//2,   y+yOff+30, boxWidth//2, 15, "Big Key",      "pink"),
-      "map":      LabelBox(self.canvas, x+xOff,               y+yOff+45, boxWidth//2, 15, "Map",          "pink"),
-      "compass":  LabelBox(self.canvas, x+xOff+boxWidth-boxWidth//2,   y+yOff+45, boxWidth//2, 15, "Compass",      "pink"),
-      "beak":     LabelBox(self.canvas, x+xOff,               y+yOff+60, boxWidth//2, 15, "Beak",         "pink"),
-      "key":      LabelBox(self.canvas, x+xOff+boxWidth-boxWidth//2,   y+yOff+60, boxWidth//2, 15, "Main Key",     "pink")
+      "complete": LabelBox(self.canvas, self.x+xOff,                      self.y+yOff,    boxWidth,    15, "Complete",  "#F08080", fontSize=8),
+      "miniboss": LabelBox(self.canvas, self.x+xOff,                      self.y+yOff+15, boxWidth//2, 15, "Mini-Boss", "#F08080", fontSize=8),
+      "boss":     LabelBox(self.canvas, self.x+xOff+boxWidth-boxWidth//2, self.y+yOff+15, boxWidth//2, 15, "Nightmare", "#F08080", fontSize=8),
+      "item":     LabelBox(self.canvas, self.x+xOff,                      self.y+yOff+30, boxWidth//2, 15, "Item",      "#F08080", fontSize=8),
+      "bigKey":   LabelBox(self.canvas, self.x+xOff+boxWidth-boxWidth//2, self.y+yOff+30, boxWidth//2, 15, "Big Key",   "#F08080", fontSize=8),
+      "map":      LabelBox(self.canvas, self.x+xOff,                      self.y+yOff+45, boxWidth//2, 15, "Map",       "#F08080", fontSize=8),
+      "compass":  LabelBox(self.canvas, self.x+xOff+boxWidth-boxWidth//2, self.y+yOff+45, boxWidth//2, 15, "Compass",   "#F08080", fontSize=8),
+      "beak":     LabelBox(self.canvas, self.x+xOff,                      self.y+yOff+60, boxWidth//2, 15, "Beak",      "#F08080", fontSize=8),
+      "key":      LabelBox(self.canvas, self.x+xOff+boxWidth-boxWidth//2, self.y+yOff+60, boxWidth//2, 15, "Main Key",  "#F08080", fontSize=8)
     }
 
     self.dungeonSpecifics = []
@@ -52,62 +53,64 @@ class DungeonItem:
     self.canvas.itemconfig(self.keysText, text=f"Small Keys: {dungeonItems.smallKeys}")
     
     if dungeonItems.map:
-      self.dungeonMarkers['map'].updateFill("lightgreen")
+      self.dungeonMarkers['map'].update(fill="#ADD8E6")
     else:
-      self.dungeonMarkers['map'].updateFill("pink")
+      self.dungeonMarkers['map'].update(fill="#F08080")
     
     if dungeonItems.compass:
-      self.dungeonMarkers['compass'].updateFill("lightgreen")
+      self.dungeonMarkers['compass'].update(fill="#ADD8E6")
     else:
-      self.dungeonMarkers['compass'].updateFill("pink")
+      self.dungeonMarkers['compass'].update(fill="#F08080")
     
     if dungeonItems.beak:
-      self.dungeonMarkers['beak'].updateFill("lightgreen")
+      self.dungeonMarkers['beak'].update(fill="#ADD8E6")
     else:
-      self.dungeonMarkers['beak'].updateFill("pink")
+      self.dungeonMarkers['beak'].update(fill="#F08080")
     
     if dungeonItems.bossKey:
-      self.dungeonMarkers['bigKey'].updateFill("lightgreen")
+      self.dungeonMarkers['bigKey'].update(fill="#ADD8E6")
     else:
-      self.dungeonMarkers['bigKey'].updateFill("pink")
+      self.dungeonMarkers['bigKey'].update(fill="#F08080")
 
-    self.dungeonMarkers['complete'].updateFill("pink")
-    self.dungeonMarkers['boss'].updateFill("pink")
-    self.dungeonMarkers['miniboss'].updateFill("pink")
+    self.dungeonMarkers['complete'].update(fill="#F08080")
+    self.dungeonMarkers['boss'].update(fill="#F08080")
+    self.dungeonMarkers['miniboss'].update(fill="#F08080")
 
     if bossFlags & 1: # Miniboss is defeated
-      self.dungeonMarkers['miniboss'].updateFill("lightgreen")
+      self.dungeonMarkers['miniboss'].update(fill="#ADD8E6")
 
     if bossStatus: # Boss is defeated
-      self.dungeonMarkers['miniboss'].updateFill("lightgreen")
-      self.dungeonMarkers['boss'].updateFill("lightgreen")
+      self.dungeonMarkers['miniboss'].update(fill="#ADD8E6")
+      self.dungeonMarkers['boss'].update(fill="#ADD8E6")
 
     if bossFlags & 2: # Dungeon is totally complete
-      self.dungeonMarkers['complete'].updateFill("lightgreen")
-      self.dungeonMarkers['boss'].updateFill("lightgreen")
-      self.dungeonMarkers['miniboss'].updateFill("lightgreen")
+      self.dungeonMarkers['complete'].update(fill="#ADD8E6")
+      self.dungeonMarkers['boss'].update(fill="#ADD8E6")
+      self.dungeonMarkers['miniboss'].update(fill="#ADD8E6")
     
     if self.isOpen():
-      self.dungeonMarkers['key'].updateFill("lightgreen")
+      self.dungeonMarkers['key'].update(fill="#ADD8E6")
     else:
-      self.dungeonMarkers['key'].updateFill("pink")
+      self.dungeonMarkers['key'].update(fill="#F08080")
     
     if self.hasItem():
-      self.dungeonMarkers['item'].updateFill("lightgreen")
+      self.dungeonMarkers['item'].update(fill="#ADD8E6")
     else:
-      self.dungeonMarkers['item'].updateFill("pink")
-    
-
+      self.dungeonMarkers['item'].update(fill="#F08080")
     
   def isOpen(self):
-    return False
+    if not self.level:
+      return False
+    return getOpenDungeons(self.zelda)[self.level-1]
     
   def hasItem(self):
-    return False
+    if not self.level:
+      return False
+    return getDungeonItems(self.zelda)[self.level-1]
 
   def reset(self):
-    self.updateFill('white')
-    self.updateText(self.name)
+    self.update(fill='#FFFFFF')
+    self.update(text=self.name)
   
   def __repr__(self):
     if self.box:
@@ -117,17 +120,8 @@ class DungeonItem:
 
 
 class TailCave(DungeonItem):
-  def __init__(self, canvas, zelda, x, y, width, height):
-    self.name = "Tail Cave"
-    self.level = 1
-    super().__init__(canvas, zelda, x, y, width, height)
-  
-  def isOpen(self):
-    return self.zelda.getInventory().tailKey
-  
-  def hasItem(self):
-    return self.zelda.getInventory().roc
-
+  name = "Tail Cave"
+  level = 1
 
 class BottleGrotto(DungeonItem):
   def __init__(self, canvas, zelda, x, y, width, height):

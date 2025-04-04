@@ -1,16 +1,16 @@
 from lib.gui.widgets.base import BaseWidget
 from lib.gui.widgets.dungeonElements import *
 from lib.wrapper.LinksAwakeningWrapper import LinksAwakeningWrapper
-from tkinter import Canvas
+from lib.gui.widgets.mycanvas import MyCanvas
 class DungeonTracker(BaseWidget):  
-  def __init__(self, canvas: Canvas, zelda:LinksAwakeningWrapper, x, y, boxWidth, boxHeight):
+  def __init__(self, canvas: MyCanvas, zelda:LinksAwakeningWrapper, x, y, boxWidth, boxHeight):
     self.x = x
     self.y = y
     width  = boxWidth*3+10
     height = boxHeight*5+40
     self.canvas = canvas
     self.zelda = zelda
-    self.canvas.create_text(x, y, text="Dungeons:", anchor=tk.NW)
+    self.canvas.draw_text(x, y, "Dungeons:")
     self.dungeons: list[DungeonItem] = [
       TailCave    (self.canvas, self.zelda, self.x+width*0, self.y+16+height*0, width, height),
       BottleGrotto(self.canvas, self.zelda, self.x+width*1, self.y+16+height*0, width, height),

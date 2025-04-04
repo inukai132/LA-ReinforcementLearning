@@ -4,6 +4,7 @@ from typing import cast
 from pprint import pprint as print
 from lib.util.structs import *
 from lib.util.enums import *
+from lib.util.scores import SCORES
 
 class LinksAwakeningWrapper():
   cartridge_title = "ZELDA"
@@ -14,6 +15,8 @@ class LinksAwakeningWrapper():
     self.base._set_dimensions(0, 0, 21, 19, False)
     self.base.game_area_mapping(self.base.mapping_one_to_one, 0)
     self.ui:Window = None
+    self.idlePenalty=0
+    self.lastScore=0
   
   def link_ui(self, ui):
     self.ui = ui
@@ -310,6 +313,10 @@ class LinksAwakeningWrapper():
       signpostMazeCur=self.pyboy.memory[0xd473],
       powerup=self.pyboy.memory[0xd47c],
       tileGlint=self.pyboy.memory[0xffb9],
+      dialog=self.pyboy.memory[0xC19F],
+      jingle=self.pyboy.memory[0xFFF2],
+      waveSfx=self.pyboy.memory[0xFFF3],
+      noiseSfx=self.pyboy.memory[0xFFF4],
     )
   
   def getInvCursorPos(self):
@@ -523,4 +530,138 @@ class LinksAwakeningWrapper():
     # pprint(self.getKillCount())
     # pprint(f"Kill Order: ")
     # pprint(self.getKillOrder())
+  
+  def getFrameScore(self):
+    # Penalize spending time without making progress
+    return self.idlePenalty*SCORES["frame"]
 
+  def getRupeeScore(self):
+    # Reward collecting rupees. This may need more tweaking
+    return self.getRupees().count*SCORES["rupee"]
+
+  def getCurrentEntitiesScore(self):
+    # Penalize number of entities on screen. The goal is to guide the player to killing enemies and collecting rewards
+    activeEntities = [e for e in self.getEntities() if e.status != ENTITY_STATUS.ENTITY_STATUS_DISABLED.value]
+    return len(activeEntities)*SCORES["entities"]
+
+  def getDungeonScore(self):
+    from lib.util.utils import getDungeonItems, getOpenDungeons
+
+    # Reward dungeon progress
+    score = 0
+    openList = getOpenDungeons(self)
+    itemList = getDungeonItems(self)
+    for i,d in enumerate(self.getDungeonItems()):
+      if openList[i]:
+        score += SCORES["dungeonOpen"]
+      if itemList[i]:
+        score += SCORES["dungeonItem"]
+      if d.beak:
+        score += SCORES["dungeonBeak"]
+      if d.compass:
+        score += SCORES["dungeonCompass"]
+      if d.map:
+        score += SCORES["dungeonMap"]
+      if d.bossKey:
+        score += SCORES["dungeonBKey"]
+      if self.getBossFlags()[i] & 1:
+        score += SCORES["dungeonMidbossDefeat"]
+      if self.getBossStatus()[i] & 1:
+        score += SCORES["dungeonBossDefeat"]
+      if self.getBossFlags()[i] & 2:
+        score += SCORES["dungeonInstrument"]
+    return score
+  
+  def getMapScore(self):
+    # Reward exploration, more score per room visited
+    score = 0
+    score += sum(SCORES["overworldMap"] for r in self.getOverworldRoomStatus() for x in r if x)
+    score += sum(SCORES["indoorMapA"] for r in self.getIndoorARoomStatus() for x in r if x)
+    score += sum(SCORES["indoorMapB"] for r in self.getIndoorBRoomStatus() for x in r if x)
+    return score
+  
+  def getFlagsScore(self):
+    # Reward story progression
+    flags = self.getFlags()
+    score = 0
+    score += flags.lostInWoods * -SCORES["lostInWoods"]
+    score += flags.gelsStuck * -SCORES["gelsStuck"]
+    score += flags.shopItem1 * SCORES["shopItem1"]
+    score += flags.shopItem2 * SCORES["shopItem2"]
+    score += flags.shopItem3 * SCORES["shopItem3"]
+    score += flags.shopItem4 * SCORES["shopItem4"]
+    score += flags.marinStatus * SCORES["marinStatus"]
+    score += flags.eggMazeProg * SCORES["eggMazeProg"]
+    score += flags.hasFlippers * SCORES["hasFlippers"]
+    score += flags.hasMedicine * SCORES["hasMedicine"]
+    score += flags.hasTailKey * SCORES["hasTailKey"]
+    score += flags.hasFishKey * SCORES["hasFishKey"]
+    score += flags.hasFaceKey * SCORES["hasFaceKey"]
+    score += flags.hasBirdKey * SCORES["hasBirdKey"]
+    score += flags.hasSlimeKey * SCORES["hasSlimeKey"]
+    score += flags.tarinStatus * SCORES["tarinStatus"]
+    score += flags.songs * SCORES["songs"]
+    score += flags.hasToadstool * SCORES["hasToadstool"]
+    score += flags.richardSpoken * SCORES["richardSpoken"]
+    score += flags.bowWow * SCORES["bowWow"]
+    score += flags.marinFollows * SCORES["marinFollows"]
+    score += flags.marinInAnimalVil * SCORES["marinInAnimalVil"]
+    score += flags.ghostFollowing * SCORES["ghostFollowing"]
+    score += flags.ghostStep2 * SCORES["ghostStep2"]
+    score += flags.roosterFollowing * SCORES["roosterFollowing"]
+    score += flags.eggMaze * SCORES["eggMaze"]
+    score += flags.finalForm * SCORES["finalForm"]
+    score += flags.signpostMazeGoal * SCORES["signpostMazeGoal"]
+    score += flags.signpostMazeCur * SCORES["signpostMazeCur"]
+    score += flags.powerup * SCORES["powerup"]
+    score += flags.tileGlint * SCORES["tileGlint"]
+    return score
+
+  def getInventoryScore(self):
+    # Reward having items, this includes having consumables and passive items
+    score = 0
+    inv = self.getInventory()
+    score += inv.sword * SCORES["sword"]
+    score += inv.shield * SCORES["shield"]
+    score += inv.brace * SCORES["brace"]
+    score += inv.ocarina * SCORES["ocarina"]
+    score += inv.powder * SCORES["powder"]
+    score += inv.bow * SCORES["bow"]
+    score += inv.bombs * SCORES["bombs"]
+    score += inv.roc * SCORES["roc"]
+    score += inv.boots * SCORES["boots"]
+    score += inv.shovel * SCORES["shovel"]
+    score += inv.magicRod * SCORES["magicRod"]
+    score += inv.hookshot * SCORES["hookshot"]
+    score += inv.tradeItem * SCORES["tradeItem"]
+    score += inv.boomerang * SCORES["boomerang"]
+    score += inv.flippers * SCORES["flippers"]
+    score += inv.tailKey * SCORES["tailKey"]
+    score += inv.slimeKeyOrLeaves * SCORES["slimeKeyOrLeaves"]
+    score += inv.anglerKey * SCORES["anglerKey"]
+    score += inv.faceKey * SCORES["faceKey"]
+    score += inv.birdKey * SCORES["birdKey"]
+    score += inv.medicine * SCORES["medicine"]
+    score += inv.seashells * SCORES["seashells"]
+    score += inv.heartPieces * SCORES["heartPieces"]
+
+    return score
+
+  def getHealthScore(self):
+    return self.getCurHearts() * SCORES["health"]
+
+  def getScore(self):
+    '''
+    We want to reward progression without promoting loops or local maxima.
+    No fixed range, everything will be relative. 
+    '''
+    score = self.getRupeeScore() + self.getCurrentEntitiesScore() + \
+    self.getDungeonScore() + self.getMapScore() + self.getFlagsScore() + self.getHealthScore()
+    
+    if score > self.lastScore:
+      self.idlePenalty = 0
+      self.lastScore = score
+    else:
+      self.idlePenalty += 1
+
+    return score + self.getFrameScore()

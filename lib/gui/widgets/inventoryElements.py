@@ -8,20 +8,18 @@ class InventoryItem(LabelBox):
   def __init__(self, canvas, zelda, x, y, width, height):
     self.zelda = zelda
     self.canvas = canvas
-    super().__init__(canvas, x, y, width, height, f"{self.name} ?", 'white')
+    super().__init__(canvas, x, y, width, height, f"{self.name} ?", '#FFFFFF')
   
   def update(self):
     newText = f"{self.name} {self.getNewText()}"
     if len(newText) > 10:
       newText = newText[:10]
-    self.updateText(newText)
-    
     newColor = self.getNewColor()
-    self.updateFill(newColor)    
+    
+    super().update(text=newText, fill=newColor)
 
   def reset(self):
-    self.updateFill('white')
-    self.updateText(self.name)
+    super().update(fill='#FFFFFF', text=self.name)
   
   def __repr__(self):
     if self.box:
@@ -31,10 +29,10 @@ class InventoryItem(LabelBox):
     
   def getNewColor(self):
     if self.itemID in self.zelda.getCurrentEquip():
-      return 'lightblue'
+      return '#ADD8E6'
     if getattr(self.zelda.getInventory(),self.name,0):
-      return 'lightgreen'
-    return 'pink'
+      return '#7CFC00'
+    return '#F08080'
 
 
 class SwordItem(InventoryItem):

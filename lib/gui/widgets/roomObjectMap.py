@@ -16,7 +16,7 @@ class RoomObjectMap(TileMap):
       for j,r in enumerate(tiles) if j and j <= self.dims[1]
     ]
     tiles = self.remapTiles(tiles)
-    self.setTiles(tiles)
+    super().update(tiles)
 
   def remapTiles(self, tileList:list[list[int]])->list[list[int]]:
     tileset = set()

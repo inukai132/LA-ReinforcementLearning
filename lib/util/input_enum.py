@@ -1,6 +1,6 @@
-from enum import Enum
+from enum import IntEnum
 
-class PYBOY_INPUT(Enum):
+class PYBOY_INPUT(IntEnum):
   (
     QUIT,
     PRESS_ARROW_UP,

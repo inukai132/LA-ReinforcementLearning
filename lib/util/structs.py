@@ -116,6 +116,10 @@ class GameFlags:
   signpostMazeCur:int
   powerup:int
   tileGlint:int
+  dialog:int
+  jingle:int
+  waveSfx:int
+  noiseSfx:int
 
 @dataclass
 class RoomWarp:

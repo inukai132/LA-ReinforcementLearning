@@ -1,30 +1,34 @@
 from lib.gui.widgets.base import BaseWidget
-import tkinter as tk
+from lib.gui.widgets.mycanvas import MyCanvas
+from lib.gui.widgets.labelBox import LabelBox
 
 class TileMap(BaseWidget):
 
-  def __init__(self, canvas: tk.Canvas, x, y, boxSize, tileWidth, tileHeight, mapName="Tile Map"):
+  def __init__(self, canvas:MyCanvas, x, y, boxSize, tileWidth, tileHeight, mapName="Tile Map"):
     self.x = x
     self.y = y
     self.canvas = canvas
     self.box_size = boxSize
     self.dims = (tileWidth, tileHeight)
 
-    self.canvas.create_text(x, y, text=mapName, anchor=tk.NW)
+    self.canvas.draw_text(x, y, mapName)
     yOff = 15
 
     self.tiles = {}
 
     for tY in range(tileHeight):
       for tX in range(tileWidth):
-        self.tiles[(tX,tY)] = self.canvas.create_rectangle(
-          self.x+tX*self.box_size, self.y+yOff+tY*self.box_size,
-          self.x+(tX+1)*self.box_size, self.y+yOff+(tY+1)*self.box_size,
-          fill='black')
+        self.tiles[(tX,tY)] = LabelBox(self.canvas, self.x+tX*self.box_size, self.y+yOff+tY*self.box_size, self.box_size, self.box_size, "FF", fontSize=8)
+        
   
-  def setTiles(self, tiles):
+  def update(self, tiles):
     for tY,r in enumerate(tiles):
       for tX,c in enumerate(r):
-        self.canvas.itemconfig(self.tiles[(tX,tY)],fill=f"#{hex(c)[2:]*3}")
+        if (tX,tY) not in self.tiles:
+          continue
+        try:
+          self.tiles[(tX,tY)].update(text=hex(c)[2:].zfill(2).upper(), fill=f"#{hex(c)[2:].zfill(2)*3}")
+        except Exception:
+          self.tiles[(tX,tY)].update(text="??", fill="#ff0000")
 
       

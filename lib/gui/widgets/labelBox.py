@@ -1,8 +1,8 @@
-import tkinter as tk
 from lib.gui.widgets.base import BaseWidget
+from lib.gui.widgets.mycanvas import MyCanvas
 
 class LabelBox(BaseWidget):
-  def __init__(self, canvas:tk.Canvas, x, y, width, height, text='', fill='white'):
+  def __init__(self, canvas:MyCanvas, x, y, width, height, text='', fill='#FFFFFF', fontSize=10, fontColor="auto"):
     self.canvas = canvas
     self.x = x
     self.y = y
@@ -12,6 +12,9 @@ class LabelBox(BaseWidget):
     self.fill = fill
     self.box  = None
     self.label = None
+    self.fontSize = fontSize
+    self.fontColor = fontColor
+    self.effFontColor = '#000000'
     self.draw()
 
   def drawBox(self):
@@ -36,21 +39,34 @@ class LabelBox(BaseWidget):
       textY = self.y
     else:
       bbox = self.canvas.bbox(self.box)
-      textX = bbox[0] + 5
-      textY = bbox[1] + (self.height-12)//2
+      textX = bbox[0]+2
+      textY = bbox[1]+2
     if self.label:
       self.canvas.moveto(self.label, textX, textY)
-      self.canvas.itemconfig(self.label, text=self.text)
+      self.canvas.itemconfig(self.label, text=self.text, fill=self.effFontColor)
     else:
-      self.label = self.canvas.create_text(textX, textY, text=self.text, anchor=tk.NW)
+      self.label = self.canvas.draw_text(textX, textY, self.text, fontColor=self.effFontColor, size=self.fontSize)
 
-  def updateFill(self, fill):
+
+  def _updateFill(self, fill):
     self.fill = fill
-    self.drawBox()
+    if self.fontColor == "auto":
+      r,g,b = (int(x,16) for x in (self.fill[1:3],self.fill[3:5],self.fill[5:7]))
+      lum = (0.299 * r + 0.587 * g + 0.114 * b)/255
+      if lum < .5:
+        self.effFontColor = '#FFFFFF'
+      else:
+        self.effFontColor = '#000000'
 
-  def updateText(self, text):
+  def _updateText(self, text):
     self.text = text
-    self.drawLabel()
+
+  def update(self, fill=None, text=None):
+    if fill is not None:
+      self._updateFill(fill)
+    if text is not None:
+      self._updateText(text)
+    self.draw()
 
   def draw(self):
     self.drawBox()

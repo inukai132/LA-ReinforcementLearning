@@ -1,31 +1,31 @@
 from lib.gui.widgets.base import BaseWidget
 from lib.gui.widgets.dungeonElements import *
+from lib.gui.widgets.mycanvas import MyCanvas
 from lib.wrapper.LinksAwakeningWrapper import LinksAwakeningWrapper
-from tkinter import Canvas
 class SubTracker(BaseWidget):  
-  def __init__(self, canvas: Canvas, zelda:LinksAwakeningWrapper, x, y):
+  def __init__(self, canvas:MyCanvas, zelda:LinksAwakeningWrapper, x, y):
     self.x = x
     self.y = y
     self.canvas = canvas
     self.zelda = zelda
-    self.canvas.create_text(x, y, text="Sub-Tracker: ", anchor=tk.W)
+    self.canvas.draw_text(x, y, "Sub-Tracker: ")
     offX = self.x+10
     offY = self.y+15
-    self.health_text = self.canvas.create_text(offX, offY, text="Health: <Loading>", anchor=tk.W)
+    self.health_text = self.canvas.draw_text(offX, offY, "Health: <Loading>")
     offY+=15
-    self.rupee_text = self.canvas.create_text(offX,  offY, text="Rupees: <Loading>", anchor=tk.W)
+    self.rupee_text = self.canvas.draw_text(offX,  offY, "Rupees: <Loading>")
     offY+=15
-    self.bomb_text = self.canvas.create_text(offX,   offY, text="Bombs: <Loading>", anchor=tk.W)
+    self.bomb_text = self.canvas.draw_text(offX,   offY, "Bombs: <Loading>")
     offY+=15
-    self.powder_text = self.canvas.create_text(offX, offY, text="Powder: <Loading>", anchor=tk.W)
+    self.powder_text = self.canvas.draw_text(offX, offY, "Powder: <Loading>")
     offY+=15
-    self.arrow_text = self.canvas.create_text(offX,  offY, text="Arrows: <Loading>", anchor=tk.W)
+    self.arrow_text = self.canvas.draw_text(offX,  offY, "Arrows: <Loading>")
     offY+=15
-    self.shells_text = self.canvas.create_text(offX, offY, text="Shells: <Loading>", anchor=tk.W)
+    self.shells_text = self.canvas.draw_text(offX, offY, "Shells: <Loading>")
     offY+=15
-    self.poh_text = self.canvas.create_text(offX,   offY, text="Heart Pieces: <Loading>", anchor=tk.W)
+    self.poh_text = self.canvas.draw_text(offX,   offY, "Heart Pieces: <Loading>")
     offY+=15
-    self.trade_text = self.canvas.create_text(offX,   offY, text="Trade Item: <Loading>", anchor=tk.W)
+    self.trade_text = self.canvas.draw_text(offX,   offY, "Trade Item: <Loading>")
   
   def update(self):
     self.canvas.itemconfig(self.health_text, text=f"Health: {self.zelda.getCurHearts()/8}/{self.zelda.getMaxHearts()}")
